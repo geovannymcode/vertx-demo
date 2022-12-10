@@ -1,6 +1,7 @@
 package com.geovannycode.hibernate.repository;
 
 import com.geovannycode.hibernate.dto.TaskDTO;
+import com.geovannycode.hibernate.model.Project;
 import com.geovannycode.hibernate.model.Task;
 import com.geovannycode.hibernate.repository.impl.TaskRepositoryImpl;
 import io.vertx.core.CompositeFuture;
@@ -18,15 +19,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.shaded.org.yaml.snakeyaml.LoaderOptions;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Properties;
-
 
 @Testcontainers
 @ExtendWith(VertxExtension.class)
-public class TaskRepositoryImplTest {
+class TaskRepositoryImplTest {
 
     private final String DB_NAME = "hibernatedb";
     private final String DB_USER = "user";
@@ -55,7 +55,7 @@ public class TaskRepositoryImplTest {
         Configuration hibernateConfiguration = new Configuration();
         hibernateConfiguration.setProperties(hibernateProps);
         hibernateConfiguration.addAnnotatedClass(Task.class);
-        //hibernateConfiguration.addAnnotatedClass(Project.class);
+        hibernateConfiguration.addAnnotatedClass(Project.class);
         ServiceRegistry serviceRegistry = new ReactiveServiceRegistryBuilder()
                 .applySettings(hibernateConfiguration.getProperties()).build();
         Stage.SessionFactory sessionFactory = hibernateConfiguration
@@ -66,7 +66,7 @@ public class TaskRepositoryImplTest {
 
     @Test
     void createTaskTest(Vertx vertx, VertxTestContext context){
-        TaskDTO taskDTO = new TaskDTO(null, 1 ,"My Task", false, LocalDateTime.now());
+        TaskDTO taskDTO = new TaskDTO(null, 1 ,"My Task", false, LocalDateTime.now(), Optional.empty());
         context.verify(()->{
            repository.createTask(taskDTO)
                    .onFailure(err -> context.failNow(err))
@@ -94,7 +94,7 @@ public class TaskRepositoryImplTest {
 
     @Test
     void findTaskByIdExistsTest(Vertx vertx, VertxTestContext context){
-        TaskDTO taskDTO = new TaskDTO(null, 1 ,"My Task", false, LocalDateTime.now());
+        TaskDTO taskDTO = new TaskDTO(null, 1 ,"My Task", false, LocalDateTime.now(), Optional.empty());
         context.verify(()->{
             repository.createTask(taskDTO)
                     .compose(r-> repository.findTaskById(r.id()))
@@ -108,7 +108,7 @@ public class TaskRepositoryImplTest {
 
     @Test
     void removeTaskTest(Vertx vertx, VertxTestContext context){
-        TaskDTO taskDTO = new TaskDTO(null, 1 ,"My Task", false, LocalDateTime.now());
+        TaskDTO taskDTO = new TaskDTO(null, 1 ,"My Task", false, LocalDateTime.now(), Optional.empty());
         context.verify(()->{
            repository.createTask(taskDTO)
                    .compose(r->{
@@ -125,12 +125,12 @@ public class TaskRepositoryImplTest {
 
     @Test
     void updateTaskTest(Vertx vertx, VertxTestContext context){
-        TaskDTO taskDTO = new TaskDTO(null, 1 ,"My Task", false, LocalDateTime.now());
+        TaskDTO taskDTO = new TaskDTO(null, 1 ,"My Task", false, LocalDateTime.now(), Optional.empty());
         context.verify(()->{
             repository.createTask(taskDTO)
                     .compose(r->{
                        Assertions.assertEquals(1, r.id());
-                       TaskDTO updateTask = new TaskDTO(1,r.userId(),"Update content", true, r.createdAt());
+                       TaskDTO updateTask = new TaskDTO(1,r.userId(),"Update content", true, r.createdAt(), Optional.empty());
                        return repository.updateTask(updateTask);
                     }).compose(r->{
                         Assertions.assertTrue(r.completed());
@@ -149,9 +149,9 @@ public class TaskRepositoryImplTest {
 
     @Test
     void findTaskByUserTest(Vertx vertx, VertxTestContext context){
-        TaskDTO task1 = new TaskDTO(null, 1, "My task", false, LocalDateTime.now());
-        TaskDTO task2 = new TaskDTO(null, 1, "My task", false, LocalDateTime.now());
-        TaskDTO task3 = new TaskDTO(null, 2, "My task", false, LocalDateTime.now());
+        TaskDTO task1 = new TaskDTO(null, 1, "My task", false, LocalDateTime.now(), Optional.empty());
+        TaskDTO task2 = new TaskDTO(null, 1, "My task", false, LocalDateTime.now(), Optional.empty());
+        TaskDTO task3 = new TaskDTO(null, 2, "My task", false, LocalDateTime.now(), Optional.empty());
         CompositeFuture createTask = CompositeFuture.join(repository.createTask(task1), repository.createTask(task2), repository.createTask(task3));
         context.verify(()->{
             createTask.compose(r->{
