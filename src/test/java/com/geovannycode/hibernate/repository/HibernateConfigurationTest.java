@@ -1,4 +1,4 @@
-package com.geovannycode.hibernate.dao;
+package com.geovannycode.hibernate.repository;
 
 import com.geovannycode.hibernate.model.Task;
 import io.vertx.core.Future;
