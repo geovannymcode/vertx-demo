@@ -106,8 +106,8 @@ public class WebVerticle extends AbstractVerticle {
         Properties hibernateProps = new Properties();
         String url = "jdbc:postgresql://localhost:5432/hdemodb";
         hibernateProps.put("hibernate.connection.url", url);
-        hibernateProps.put("hibernate.connection.username", "postgres");
-        hibernateProps.put("hibernate.connection.password", "123");
+        hibernateProps.put("hibernate.connection.username", "user");
+        hibernateProps.put("hibernate.connection.password", "usersecret");
         hibernateProps.put("javax.persistence.schema-generation.database.action", "create");
         hibernateProps.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQL95Dialect");
         Configuration hibernateConfiguration = new Configuration();
