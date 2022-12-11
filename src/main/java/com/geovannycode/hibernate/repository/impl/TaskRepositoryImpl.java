@@ -4,7 +4,7 @@ import com.geovannycode.hibernate.dto.TaskDTO;
 import com.geovannycode.hibernate.mapper.TaskDTOMapper;
 import com.geovannycode.hibernate.mapper.TaskEntityMapper;
 import com.geovannycode.hibernate.model.Task;
-import com.geovannycode.hibernate.model.TaskList;
+import com.geovannycode.hibernate.model.TasksList;
 import com.geovannycode.hibernate.repository.TaskRepository;
 import io.vertx.core.Future;
 import org.hibernate.reactive.stage.Stage;
@@ -68,7 +68,7 @@ public record TaskRepositoryImpl(Stage.SessionFactory sessionFactory) implements
     }
 
     @Override
-    public Future<TaskList> findTasksByUser(Integer userId) {
+    public Future<TasksList> findTasksByUser(Integer userId) {
         TaskDTOMapper dtoMapper = new TaskDTOMapper();
         CriteriaBuilder criteriaBuilder = sessionFactory.getCriteriaBuilder();
         CriteriaQuery<Task> criteriaQuery = criteriaBuilder.createQuery(Task.class);
@@ -79,9 +79,9 @@ public record TaskRepositoryImpl(Stage.SessionFactory sessionFactory) implements
         criteriaQuery.where(predicate);
 
         CompletionStage<List<Task>> result = sessionFactory().withTransaction((s,t)->s.createQuery(criteriaQuery).getResultList());
-        Future<TaskList> future = Future.fromCompletionStage(result)
+        Future<TasksList> future = Future.fromCompletionStage(result)
                 .map(list -> list.stream().map(dtoMapper).collect(Collectors.toList()))
-                .map(list -> new TaskList(list));
+                .map(list -> new TasksList(list));
         return future;
     }
 }
